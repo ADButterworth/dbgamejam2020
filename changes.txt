@@ -1,0 +1,18 @@
+v0.6:
+
+- Fixed player direction on level start
+- Added gamestate and level tracking
+- Set player as grounded on level start to avoid jump animation in prelude
+- Added jump animation
+- Added framework for prelude per level
+- Added camera tween to level start after prelude runs
+- Fixed level editor again
+- Fixed deleting vents deleting walls instead
+- Added rooms to world, allows control of camera zoom, alias to 3 in buildmode 
+
+- Title screen in
+- Music for title screen in with loops
+- sfx in for steps and jumps
+
+- Redone save data, warning old version will NOT work now
+- Enemies that patrol or idle added, no detection of players yet

@@ -1,0 +1,9 @@
+name = "GameJam"
+default_targets = ["win64", "macos"]
+build_directory = "makelove-build"
+
+love_files = [
+    "+*",
+    "-*/.*",
+    "-./makelove-build/*",
+]
