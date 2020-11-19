@@ -19,12 +19,22 @@ local fellowWidth = fellowPic:getWidth() * picScale
 
 local drawText = true
 
+local ending = false
 function endPrelude()
-    drawText = false
-    flux.to(metaCam, 2, {sx=1, sy=1}):ease("quartout"):oncomplete(function() GAMESTATE = "LEVEL" end)
+    if not ending then
+        drawText = false
+        levelMusic:seek(0)
+        flux.to(metaCam, 2, {sx=1, sy=1, v=1}):ease("quartout"):oncomplete(function() 
+            GAMESTATE = "LEVEL" 
+        end)
+
+        ending = true
+    end
 end
 
 function loadPrelude(levelNumber)
+    ending = false
+    lineNumber = 1
     metaCam.sx = 2
     metaCam.sy = 2
     camera:setScale(metaCam.sx, metaCam.sy)
@@ -39,15 +49,20 @@ function loadPrelude(levelNumber)
             "Your first target is a Nova City stock exchange in the centre of the city, once there you will need to make your way to the top floor to acquire your first keycard.",
             "What kind of resistance should I expect?",
             "Security is fairly light at this target since it’s still a public building, as well as a large amount of renovations which taking place that has moved much of TRUTH's staff and security away... I would suggest you start quiet here agent, but I know you have a habit of creating a scene.",
-            "If you mean I get the job done, then yes.",
-            "Agent it seems TRUTH are aware of our incursion, might I suggest you find... alternate routes to the top floor; a large amount of scaffolding and pipe-works will aid your ascent.",
+            "If you mean I get the job done, then yes."
         }
         
 
-        speaker[1] = "FELLOW"
-        speaker[2] = "DON"
-        speaker[3] = "FELLOW"
-        speaker[4] = "DON"
+        speaker = {
+            "FELLOW",
+            "DON",
+            "FELLOW",
+            "DON",
+            "FELLOW",
+            "DON",
+            "FELLOW",
+            "DON"
+        }
     end
 
     tbox.x = screen.width/2 - tbox.w/2

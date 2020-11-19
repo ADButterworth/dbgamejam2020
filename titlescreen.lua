@@ -65,9 +65,12 @@ end
 function endTitle()
     if ending == false then
         flux.to(tween, 2, {a = 0, v = 0}):ease("quartout"):oncomplete(function() 
-            GAMESTATE = "PRELUDE"
             music:stop()
             music:release()
+
+            levelMusic:play()
+            levelMusic:setVolume(0)
+            GAMESTATE = "PRELUDE"
         end)
 
         ending = true 

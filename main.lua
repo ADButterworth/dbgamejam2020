@@ -18,6 +18,7 @@ require("build")
 require("prelude")
 require("titlescreen")
 require("enemy")
+require("failscreen")
 
 bitser.registerClass(Enemy)
 
@@ -28,6 +29,7 @@ camera = gamera.new(0,0,1,1)
 metaCam = {}
 metaCam.sx = 1
 metaCam.sy = 1
+metaCam.v = 0 
 
 mouse = {}
 mouse.sx, mouse.sy = love.mouse.getPosition()
@@ -66,11 +68,13 @@ end
 
 love.frame = 0
 function love.update(dt)
+    local prevState = GAMESTATE
     TEsound.cleanup()
     flux.update(dt)
     mouse.sx, mouse.sy = love.mouse.getPosition()
     mouse.wx, mouse.wy = camera:toWorld(mouse.sx,mouse.sy)
     updateBGLayers(camera.x)
+    levelMusic:setVolume(metaCam.v)
 
     if GAMESTATE == "PRELUDE" then
         -- DO PHONECALL STUFF
@@ -82,6 +86,8 @@ function love.update(dt)
         player:update(dt)
     elseif GAMESTATE == "TITLE" then
         titleUpdate(dt)
+    elseif GAMESTATE == "FAILED" then
+        failUpdate(dt)
     end
 
     local camVX = (math.floor(player.x + player.w/2) - camera.x) * cameraSpeed * dt
@@ -124,7 +130,9 @@ function love.draw()
         end
     elseif GAMESTATE == "TITLE" then
         drawTitleScreen()
-    end 
+    elseif GAMESTATE == "FAILED" then
+        drawFailScreen()
+    end
 
     if DEVELOPER and GAMESTATE ~= "TITLE" then
         love.graphics.setColor(1,1,1)
@@ -155,8 +163,14 @@ end
 
 function love.keypressed(key, scancode, isrepeat)
     if (key == "r") then
-        genBGLayers()
         player:setup()
+        loadPrelude(LEVEL)
+        loadLevel("levels/1.lvl")
+        GAMESTATE = "PRELUDE"
+
+        if GAMESTATE == "FAILED" then
+            endFail()
+        end
     elseif (key == "q") then
         love.event.quit()
     elseif key == "f1" and DEVELOPER then

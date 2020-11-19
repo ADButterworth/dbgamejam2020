@@ -4,6 +4,7 @@ world.vents = {}
 world.stairs = {}
 world.rooms = {}
 world.enemies = {}
+world.windows = {}
 
 world.showVentConnections = false
 FLOOR_HEIGHT = nil
@@ -12,6 +13,10 @@ CLOUD_HEIGHT = nil
 local sprites = {} 
 world.phonebox = {}
 world.bg = {}
+world.window = {}
+
+levelMusic = love.audio.newSource("sfx/level.mp3", "static")
+levelMusic:setLooping(true)
 
 local function loadSprites()
     sprites.phonebox = love.graphics.newImage("gfx/phonebox.png")
@@ -20,6 +25,10 @@ local function loadSprites()
     sprites.background = love.graphics.newImage("gfx/background/office.png")
     world.bg.w = sprites.background:getWidth()
     world.bg.h = sprites.background:getHeight()
+
+    sprites.window = love.graphics.newImage("gfx/background/office_window.png")
+    world.window.w = sprites.background:getWidth()
+    world.window.h = sprites.background:getHeight()
 
     world.phonebox.scale = 2.25
     world.phonebox.w = sprites.phonebox:getWidth() * world.phonebox.scale
@@ -48,6 +57,7 @@ function loadLevel(file)
     world.stairs = {}
     world.rooms = {}
     world.enemies = {}
+    world.windows = {}
 
     local data = love.filesystem.read(file)
     
@@ -67,6 +77,13 @@ function loadLevel(file)
         world.stairs = deserializedData[3]
         world.rooms = deserializedData[4]
         world.enemies = deserializedData[5]
+    elseif #deserializedData == 6 then
+        world.blocks = deserializedData[1]
+        world.vents = deserializedData[2]
+        world.stairs = deserializedData[3]
+        world.rooms = deserializedData[4]
+        world.enemies = deserializedData[5]
+        world.windows = deserializedData[6]
     else
         error("Failed to load level file")
     end
@@ -137,6 +154,16 @@ function addRoom(x,y,w,h)
     table.insert(world.rooms, b)
 end
 
+function addWindow(x,y,w,h)
+    local b = {}
+    b.x = x 
+    b.y = y 
+    b.w = w 
+    b.h = h 
+
+    table.insert(world.windows, b)
+end
+
 function addEnemy(x,y, left, pl,pr, idle)
     print(x,y, left, pl,pr, idle)
     local ene = Enemy:new(x,y, left, pl,pr, idle)
@@ -148,6 +175,19 @@ function worldUpdate(dt)
     -- enemies
     for i,v in ipairs(world.enemies) do
         v:update(dt)
+    end
+
+    -- enemy vision
+    if EnemyVisionCheck(player.x, player.y) then
+        startFail()
+    elseif EnemyVisionCheck(player.x + player.w, player.y) then
+        startFail()
+    elseif EnemyVisionCheck(player.x + player.w, player.y + player.h) then
+        startFail()
+    elseif EnemyVisionCheck(player.x, player.y + player.h) then
+        startFail()
+    elseif EnemyVisionCheck(player.x + player.w/2, player.y + player.h/2) then
+        startFail()
     end
 end
 
@@ -168,6 +208,25 @@ function drawWorld()
         else
             for x = 0,v.w-1,world.bg.w do
                 love.graphics.draw(sprites.background, v.x+x,v.y)
+            end
+        end
+    end
+
+    -- room window
+    for i,v in ipairs(world.windows) do
+        if world.window.w % v.w ~= 0 then
+            local bw = world.window.w * math.floor(v.w / world.window.w) -- background width with gap
+            local dw = v.w - bw -- width error
+            local dim = dw / (bw / world.window.w) -- how much to change each image by to compensate
+            local scale = (dim / world.window.w) + 1 -- how much to scale the image to get that width change
+            local newIw = world.window.w * scale -- new image width
+
+            for x = 0,v.w-1,newIw do
+                love.graphics.draw(sprites.window, v.x+x,v.y, 0, scale,1)
+            end
+        else
+            for x = 0,v.w-1,world.window.w do
+                love.graphics.draw(sprites.window, v.x+x,v.y)
             end
         end
     end

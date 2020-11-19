@@ -6,7 +6,7 @@ enemySprites = {}
 enemyIdleSprite = 8
 enemyScale = 2.4
 
-enemyVisionAngle = math.pi / 4
+enemyVisionAngle = math.pi / 3
 enemyVisionRange = 300
 local enemyFiles = love.filesystem.getDirectoryItems("gfx/enemy")
 for i,v in ipairs(enemyFiles) do
@@ -99,4 +99,44 @@ end
 
 function Enemy:draw()
     enemyDraw(self)
+end
+
+function EnemyVisionCheck(px,py)
+    local enemyNotices = false
+    
+    for i,v in ipairs(world.enemies) do 
+        love.graphics.setColor(1,0,0,1)
+
+        local angle = math.angle(v.x + v.w/2, v.y + v.h/2 - 40, px, py)
+        local angleMatch = false
+        if v.facingRight then
+            if angle < enemyVisionAngle/2 and angle > -enemyVisionAngle/2 then -- angle
+                angleMatch = true
+            end
+        else
+            if angle < (math.pi + enemyVisionAngle/2) and angle > (math.pi - enemyVisionAngle/2) then -- angle
+                angleMatch = true
+            end
+        end
+
+        if angleMatch then
+            if math.dist(v.x + v.w/2, v.y + v.h/2 - 40, px, py) < enemyVisionRange then -- distance
+
+                -- walls
+                local blockCheck = false
+                for j,b in ipairs(world.blocks) do 
+                    if (boxSegmentIntersection(b.x,b.y,b.w,b.h, v.x + v.w/2, v.y + v.h/2 - 40, px, py)) then
+                        blockCheck = true
+                        break
+                    end
+                end
+
+                if not blockCheck then
+                    enemyNotices = true
+                end
+            end 
+        end
+    end
+
+    return enemyNotices
 end

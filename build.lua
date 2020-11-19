@@ -27,10 +27,12 @@ function drawBuild()
         love.graphics.print("stairs", RoundToNumber(mouse.wx, 25)-20, RoundToNumber(mouse.wy, 25) - 20)
     elseif build.type == 5 then
         love.graphics.print("enemy", RoundToNumber(mouse.wx, 25)-20, RoundToNumber(mouse.wy, 25) - 20)
+    elseif build.type == 6 then
+        love.graphics.print("window", RoundToNumber(mouse.wx, 25)-20, RoundToNumber(mouse.wy, 25) - 20)
     end
     love.graphics.print(tostring(RoundToNumber(mouse.wx, 25))..", "..RoundToNumber(mouse.wy, 25), RoundToNumber(mouse.wx, 25)-20, RoundToNumber(mouse.wy, 25) + 10)
 
-    if build.type == 1 or build.type == 3 then -- walls and rooms
+    if build.type == 1 or build.type == 3 or build.type == 6 then -- walls and rooms and windows
         love.graphics.setColor(0,1,0,1)
         if build.selected == true then
             if build.pos2 == nil then
@@ -39,7 +41,7 @@ function drawBuild()
                 love.graphics.rectangle("fill", build.pos1.x, build.pos1.y, build.pos2.x - build.pos1.x, build.pos2.y - build.pos1.y)
             end
         end
-    elseif build.type == 2 or build.type == 4 or build.type == 5 then -- vents
+    elseif build.type == 2 or build.type == 4 or build.type == 5 then -- vents and stairs
         love.graphics.setColor(1,0,0,1)
         if build.pos1 ~= nil then
             if build.pos1.w == nil then 
@@ -66,7 +68,7 @@ function drawBuild()
 end
 
 function buildMousePressed(x, y, button)
-    if build.type == 1 or build.type == 3 then -- walls and rooms
+    if build.type == 1 or build.type == 3 or build.type == 6 then -- walls and rooms and windows
         if button == 1 then
             if not build.selected then
                 build.pos1 = {x = RoundToNumber(mouse.wx, 25), y = RoundToNumber(mouse.wy, 25)}
@@ -223,7 +225,7 @@ function buildKeyPressed(key)
                     end
                 end
             end
-        elseif build.type == 3 and build.pos2 ~= nil then
+        elseif (build.type == 3 or build.type == 6) and build.pos2 ~= nil then
             -- protect against backwards blocks, pos1 MUST be the top left for collisions to function properly
             local bw = build.pos2.x - build.pos1.x
             local bh = build.pos2.y - build.pos1.y
@@ -237,7 +239,11 @@ function buildKeyPressed(key)
                 build.pos2.y = build.pos1.y - bh
             end
 
-            addRoom(build.pos1.x, build.pos1.y, build.pos2.x - build.pos1.x, build.pos2.y - build.pos1.y, 1)
+            if build.type == 3 then
+                addRoom(build.pos1.x, build.pos1.y, build.pos2.x - build.pos1.x, build.pos2.y - build.pos1.y, 1)
+            else
+                addWindow(build.pos1.x, build.pos1.y, build.pos2.x - build.pos1.x, build.pos2.y - build.pos1.y, 1)
+            end
         end
 
         build.pos1 = nil 
@@ -276,6 +282,11 @@ function buildKeyPressed(key)
         build.pos1 = nil
         build.pos2 = nil
         build.selected = false
+    elseif key == "6" then
+        build.type = 6
+        build.pos1 = nil
+        build.pos2 = nil
+        build.selected = false
     end
 end 
 
@@ -284,7 +295,7 @@ function writeWorld()
     local dir = love.filesystem.getSaveDirectory()
     dir = dir.."/level.lvl"
 
-    local dataString = bitser.dumps({world.blocks, world.vents, world.stairs, world.rooms, world.enemies})
+    local dataString = bitser.dumps({world.blocks, world.vents, world.stairs, world.rooms, world.enemies, world.windows})
 
     local file, error = love.filesystem.newFile("level.lvl", "w")
     if file == nil then
