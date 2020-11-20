@@ -25,7 +25,7 @@ function endPrelude()
         drawText = false
         levelMusic:stop()
         levelMusic:play()
-        flux.to(metaCam, 2, {sx=1, sy=1, v=1}):ease("quartout"):oncomplete(function() 
+        flux.to(metaCam, 2, {sx=1, sy=1, v=0.2}):ease("quartout"):oncomplete(function() 
             GAMESTATE = "LEVEL" 
         end)
 

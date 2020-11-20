@@ -10,12 +10,22 @@ world.showVentConnections = false
 FLOOR_HEIGHT = nil
 CLOUD_HEIGHT = nil
 
+objective = {}
+objective.x = 2800
+objective.y = -1900
+objective.w = 150
+objective.h = 150
+objective.time = 1
+objective.curTime = 0
+objectiveSprite = love.graphics.newImage("gfx/safe.png")
+
 local sprites = {} 
 world.phonebox = {}
 world.bg = {}
 world.window = {}
 
 levelMusic = love.audio.newSource("sfx/level.mp3", "static")
+levelMusic:setVolume(0.5)
 levelMusic:setLooping(true)
 
 local function loadSprites()
@@ -165,7 +175,6 @@ function addWindow(x,y,w,h)
 end
 
 function addEnemy(x,y, left, pl,pr, idle)
-    print(x,y, left, pl,pr, idle)
     local ene = Enemy:new(x,y, left, pl,pr, idle)
 
     table.insert(world.enemies, ene)
@@ -190,6 +199,15 @@ function worldUpdate(dt)
         elseif EnemyVisionCheck(player.x + player.w/2, player.y + player.h/2) then
             startFail()
         end
+    end
+
+    if CheckCollision(player.x,player.y,player.w,player.h, objective.x,objective.y,objective.w,objective.h) then
+        objective.curTime = objective.curTime + dt
+        if objective.curTime >= objective.time then
+            GAMESTATE = "CREDITS"
+        end
+    else
+        objective.curTime = 0
     end
 end
 
@@ -274,6 +292,9 @@ function drawWorld()
     for x=-1000, world.width+1301, 300 do 
         love.graphics.draw(sprites.floor, x, FLOOR_HEIGHT, 0, 3)
     end
+
+    -- safe
+    drawinrect(objectiveSprite, objective.x,objective.y,objective.w,objective.h)
 end
 
 function RoundToNumber(num,roundNum)
@@ -309,8 +330,6 @@ function createSampleWorld()
 
     -- vent
     addVent(1200, -50, 50,50, 1200, 550-875, 50,50)
-
-    print(#world.enemies)
 end
 
 function worldKeyPressed(key)

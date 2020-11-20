@@ -4,7 +4,7 @@ local currentImg = 1
 local timer = 0
 local duration = math.random() * 1 + 1
 
-local tween = {a = 1, v = 1}
+local tween = {a = 1, v = 0.2}
 
 local ending = false
 
@@ -17,6 +17,7 @@ function initTitle()
     end
 
     music = love.audio.newSource("sfx/menu.mp3", "static")
+    music:setVolume(0.2)
 end
 
 function titleUpdate(dt)

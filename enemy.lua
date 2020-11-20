@@ -73,7 +73,6 @@ end
 function Enemy:update(dt)
     if self.dead == nil then -- mood
         if not self.idle then
-            print(self.x - self.startX)
             if self.facingRight and (self.x - self.startX >= self.patrolRight) then
                 self.facingRight = false
             elseif (not self.facingRight) and (self.startX - self.x >= self.patrolLeft) then

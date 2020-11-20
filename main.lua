@@ -47,12 +47,15 @@ local fpsStringHeight = defaultFont:getHeight(fpsString)
 GAMESTATE = "LOADING"
 LEVEL = 1
 
-DEVELOPER = true
+credits = love.graphics.newImage("gfx/credit.png")
+creditMusic = "sfx/credits.mp3"
+
+DEVELOPER = false
 
 function love.load()
     love.mouse.setVisible(false)
-    love.profiler = require('lib/profile') 
-    love.profiler.start()
+    --[[love.profiler = require('lib/profile') 
+    love.profiler.start()]]
 
     initTitle()
     startTitle()
@@ -98,10 +101,15 @@ function love.update(dt)
     fpsStringWidth = defaultFont:getWidth(fpsString)
     fpsStringHeight = defaultFont:getHeight(fpsString)
 
-    love.frame = love.frame + 1
+    --[[love.frame = love.frame + 1
     if love.frame%100 == 0 then
       love.report = love.profiler.report(20)
       love.profiler.reset()
+    end]]
+
+    if prevState == "LEVEL" and GAMESTATE == "CREDITS" then
+        levelMusic:stop()
+        TEsound.play(creditMusic, "static", {"credits"}, 0.3)
     end
 
     camera:setScale(metaCam.sx,metaCam.sy)
@@ -155,6 +163,10 @@ function love.draw()
         love.graphics.print(fpsString, screen.width - fpsStringWidth, saveDirStringHeight)
     end
 
+    if GAMESTATE == "CREDITS" then
+        love.graphics.setColor(1,1,1,1)
+        drawinrect(credits, 0, 0, gameWidth, gameHeight)
+    end 
 
     love.graphics.setColor(1,1,1)
     --love.graphics.print(love.report or "Please wait...")
@@ -177,7 +189,7 @@ function love.keypressed(key, scancode, isrepeat)
         love.event.quit()
     elseif key == "f1" and DEVELOPER then
         BUILD_MODE = not BUILD_MODE
-    elseif key == "t" then
+    elseif key == "t" and DEVELOPER then
         for i,v in ipairs(world.enemies) do 
             v.x = v.startX
         end

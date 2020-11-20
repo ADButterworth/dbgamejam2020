@@ -118,12 +118,18 @@ local function vents() -- and stairs
 
             player.vx = 0
             player.vy = 0
+
+            TEsound.pitch("vent", math.random(90,110)/100)
+            TEsound.play(player.ventSound, "static", {"vent"}, 0.1)
         elseif CheckCollision(player.x, player.y, player.w, player.h, v[2].x,v[2].y, v[2].w,v[2].h) then
             player.x = v[1].x + (v[1].w/2) - (player.w/2)
             player.y = v[1].y + v[1].h - player.h
 
             player.vx = 0
             player.vy = 0
+
+            TEsound.pitch("vent", math.random(90,110)/100)
+            TEsound.play(player.ventSound, "static", {"vent"}, 0.1)
         end
     end
 
@@ -178,6 +184,9 @@ function player:setup()
     player.laserMouseY = 0
     player.laserAlpha = 1
     player.laserRemaining = 3
+    player.laserSound = "sfx/lazer.mp3"
+
+    player.ventSound = "sfx/vent.mp3"
     
     player.footsteps = {}
     local playerFiles = love.filesystem.getDirectoryItems("sfx/feetpics")
@@ -359,12 +368,13 @@ function player:keypressed(key)
 end 
 
 function player:mousepressed(x, y, button)
-    if (player.laserCD <= 0) and (player.laserRemaining > 0) then
+    if (player.laserCD <= 0) and (player.laserRemaining > 0) and button == 1 then
         for i,v in ipairs(world.enemies) do 
-            if boxSegmentIntersection(v.x,v.y,v.w,v.h, player.x + player.w/2, player.y + player.h/2 - 40, mouse.wx,mouse.wy) then -- check if hit enemy
+            local x1, y1 = boxSegmentIntersection(v.x,v.y,v.w,v.h, player.x + player.w/2, player.y + player.h/2 - 40, mouse.wx,mouse.wy)
+            if x1 ~= nil then -- check if hit enemy
                 local blocked = false
                 for j,b in ipairs(world.blocks) do
-                    if boxSegmentIntersection(b.x,b.y,b.w,b.h, player.x + player.w/2, player.y + player.h/2 - 40, mouse.wx,mouse.wy) then
+                    if boxSegmentIntersection(b.x,b.y,b.w,b.h, player.x + player.w/2, player.y + player.h/2 - 40, x1,y1) then
                         blocked = true
                         break
                     end
@@ -385,6 +395,9 @@ function player:mousepressed(x, y, button)
 
         player.laserCD = player.laserCDMAX
         player.laserRemaining = player.laserRemaining - 1 
+
+        TEsound.pitch("laser", math.random(90,110)/100)
+        TEsound.play(player.laserSound, "static", {"laser"}, 0.1)
 
         flux.to(player, 0.5, {laserAlpha=0}):ease("quartout")
     end
