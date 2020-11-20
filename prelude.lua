@@ -23,7 +23,8 @@ local ending = false
 function endPrelude()
     if not ending then
         drawText = false
-        levelMusic:seek(0)
+        levelMusic:stop()
+        levelMusic:play()
         flux.to(metaCam, 2, {sx=1, sy=1, v=1}):ease("quartout"):oncomplete(function() 
             GAMESTATE = "LEVEL" 
         end)

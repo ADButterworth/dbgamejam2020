@@ -177,17 +177,19 @@ function worldUpdate(dt)
         v:update(dt)
     end
 
-    -- enemy vision
-    if EnemyVisionCheck(player.x, player.y) then
-        startFail()
-    elseif EnemyVisionCheck(player.x + player.w, player.y) then
-        startFail()
-    elseif EnemyVisionCheck(player.x + player.w, player.y + player.h) then
-        startFail()
-    elseif EnemyVisionCheck(player.x, player.y + player.h) then
-        startFail()
-    elseif EnemyVisionCheck(player.x + player.w/2, player.y + player.h/2) then
-        startFail()
+    if not BUILD_MODE then 
+        -- enemy vision
+        if EnemyVisionCheck(player.x, player.y) then
+            startFail()
+        elseif EnemyVisionCheck(player.x + player.w, player.y) then
+            startFail()
+        elseif EnemyVisionCheck(player.x + player.w, player.y + player.h) then
+            startFail()
+        elseif EnemyVisionCheck(player.x, player.y + player.h) then
+            startFail()
+        elseif EnemyVisionCheck(player.x + player.w/2, player.y + player.h/2) then
+            startFail()
+        end
     end
 end
 
@@ -203,11 +205,11 @@ function drawWorld()
             local newIw = world.bg.w * scale -- new image width
 
             for x = 0,v.w-1,newIw do
-                love.graphics.draw(sprites.background, v.x+x,v.y, 0, scale,1)
+                love.graphics.draw(sprites.background, v.x+x,v.y-25, 0, scale,1)
             end
         else
             for x = 0,v.w-1,world.bg.w do
-                love.graphics.draw(sprites.background, v.x+x,v.y)
+                love.graphics.draw(sprites.background, v.x+x,v.y-25)
             end
         end
     end
@@ -222,11 +224,11 @@ function drawWorld()
             local newIw = world.window.w * scale -- new image width
 
             for x = 0,v.w-1,newIw do
-                love.graphics.draw(sprites.window, v.x+x,v.y, 0, scale,1)
+                love.graphics.draw(sprites.window, v.x+x,v.y-25, 0, scale,1)
             end
         else
             for x = 0,v.w-1,world.window.w do
-                love.graphics.draw(sprites.window, v.x+x,v.y)
+                love.graphics.draw(sprites.window, v.x+x,v.y-25)
             end
         end
     end

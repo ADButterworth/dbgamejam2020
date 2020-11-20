@@ -166,15 +166,21 @@ function love.keypressed(key, scancode, isrepeat)
         player:setup()
         loadPrelude(LEVEL)
         loadLevel("levels/1.lvl")
-        GAMESTATE = "PRELUDE"
+        
 
         if GAMESTATE == "FAILED" then
             endFail()
+        else
+            GAMESTATE = "PRELUDE"
         end
     elseif (key == "q") then
         love.event.quit()
     elseif key == "f1" and DEVELOPER then
         BUILD_MODE = not BUILD_MODE
+    elseif key == "t" then
+        for i,v in ipairs(world.enemies) do 
+            v.x = v.startX
+        end
     end
 
     if GAMESTATE == "PRELUDE" then

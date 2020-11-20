@@ -169,6 +169,15 @@ function player:setup()
     player.animDuration = 0.08
     player.animTimer = 0
     player.idleRight = true
+
+    player.laserCDMAX = 5
+    player.laserCD = 0
+    player.laserX = 0
+    player.laserY = 0
+    player.laserMouseX = 0
+    player.laserMouseY = 0
+    player.laserAlpha = 1
+    player.laserRemaining = 3
     
     player.footsteps = {}
     local playerFiles = love.filesystem.getDirectoryItems("sfx/feetpics")
@@ -326,6 +335,11 @@ function player:update(dt)
             flux.to(metaCam, 1, {sx=1, sy=1}):ease("quartout")
         end
     end
+
+    -- lazars
+    if player.laserCD >= 0 then
+        player.laserCD = player.laserCD - dt 
+    end
 end
 
 function player:keypressed(key)
@@ -345,10 +359,43 @@ function player:keypressed(key)
 end 
 
 function player:mousepressed(x, y, button)
+    if (player.laserCD <= 0) and (player.laserRemaining > 0) then
+        for i,v in ipairs(world.enemies) do 
+            if boxSegmentIntersection(v.x,v.y,v.w,v.h, player.x + player.w/2, player.y + player.h/2 - 40, mouse.wx,mouse.wy) then -- check if hit enemy
+                local blocked = false
+                for j,b in ipairs(world.blocks) do
+                    if boxSegmentIntersection(b.x,b.y,b.w,b.h, player.x + player.w/2, player.y + player.h/2 - 40, mouse.wx,mouse.wy) then
+                        blocked = true
+                        break
+                    end
+                end
 
+                if not blocked then
+                    v.dead = true
+                    break
+                end
+            end
+        end
+
+        player.laserX = player.x + player.w/2
+        player.laserY = player.y + player.h/2 - 40
+        player.laserMouseX = mouse.wx
+        player.laserMouseY = mouse.wy
+        player.laserAlpha = 1
+
+        player.laserCD = player.laserCDMAX
+        player.laserRemaining = player.laserRemaining - 1 
+
+        flux.to(player, 0.5, {laserAlpha=0}):ease("quartout")
+    end
 end
 
 function player:draw()
+    if player.laserCD > 0 then
+        love.graphics.setColor(1,0,0,player.laserAlpha)
+        love.graphics.line(player.laserX,player.laserY, player.laserMouseX,player.laserMouseY)
+    end
+
     love.graphics.setColor(1,1,1,1)
     if player.grounded then
         if player.vx > 0 then  
@@ -376,8 +423,9 @@ function player:draw()
         end
     end
 
-    love.graphics.setColor(1,0,0,0.5)
+    love.graphics.setColor(1,0,0,(0.5 * (1 - (player.laserCD / player.laserCDMAX))) + 0.1)
     love.graphics.draw(player.crosshair.img, mouse.wx, mouse.wy, 0,1,1, player.crosshair.w/2, player.crosshair.h/2)
+    love.graphics.print(tostring(player.laserRemaining), mouse.wx+5, mouse.wy+5)
     love.graphics.setColor(1,1,1,1)
 
     -- bounding box test
@@ -386,7 +434,20 @@ function player:draw()
 end
 
 function player:respawn()
+    player.laserCDMAX = 5
+    player.laserCD = 0
+    player.laserX = 0
+    player.laserY = 0
+    player.laserMouseX = 0
+    player.laserMouseY = 0
+    player.laserAlpha = 1
+    player.laserRemaining = 3
+
     player.x = world.phonebox.x + (world.phonebox.w/2) - (player.w/2)
     player.y = FLOOR_HEIGHT-player.h
     player.grounded = true
+
+    for i,v in ipairs(world.enemies) do
+        v.dead = nil
+    end
 end

@@ -14,13 +14,14 @@ function startFail()
     flux.to(metaCam, 2, {v = 0}):ease("quartout")
     music:play()
     flux.to(tween, 2, {a = 1, v = 1}):ease("quartout")
+
+    ending = false
 end
 
 function endFail()
     if ending == false then
         flux.to(tween, 2, {a = 0, v = 0}):ease("quartout"):oncomplete(function() 
             music:stop()
-            music:release()
 
             GAMESTATE = "PRELUDE"
         end)

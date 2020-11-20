@@ -93,11 +93,20 @@ function buildMousePressed(x, y, button)
                     end
                 end
             end
-        else
+        elseif build.type == 3 then
             if (not build.selected) and button == 2 then -- delete rooms
                 for i,v in ipairs(world.rooms) do
                     if CheckCollision(mouse.wx,mouse.wy,0,0, v.x,v.y,v.w,v.h) then
                         table.remove(world.rooms, i)
+                        break
+                    end
+                end
+            end
+        else
+            if (not build.selected) and button == 2 then -- delete windows
+                for i,v in ipairs(world.windows) do
+                    if CheckCollision(mouse.wx,mouse.wy,0,0, v.x,v.y,v.w,v.h) then
+                        table.remove(world.windows, i)
                         break
                     end
                 end
